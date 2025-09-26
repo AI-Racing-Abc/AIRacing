@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Racing - 大帆船赛</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #1a2980, #26d0ce);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        
+        /* 广告位样式 */
+        .ad-left, .ad-right {
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .ad-content {
+            width: 160px;
+            height: 600px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            color: #333;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* 语言切换 */
+        .language-switcher {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .lang-btn:hover, .lang-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* 标题样式 */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* 场景展示区域 */
+        .scene-container {
+            position: relative;
+            height: 400px;
+            background: linear-gradient(to bottom, #1e3c72, #2a5298);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 水面效果 */
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to bottom, transparent, rgba(30, 144, 255, 0.7));
+        }
+        
+        .water::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120" fill="%23007bff"><path d="M0,64L80,58.7C160,53,320,43,480,48C640,53,800,75,960,74.7C1120,75,1280,53,1360,42.7L1440,32L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path></svg>');
+            background-size: cover;
+            animation: wave 10s linear infinite;
+        }
+        
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1440px; }
+        }
+        
+        /* 帆船 */
+        .sailboat {
+            position: absolute;
+            bottom: 15%;
+            left: 10%;
+            width: 200px;
+            height: 100px;
+            animation: sail 30s linear infinite;
+        }
+        
+        .boat-hull {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: #8B4513;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .mast {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 120px;
+            background: #8B4513;
+        }
+        
+        .sail {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-bottom: 100px solid white;
+            opacity: 0.9;
+        }
+        
+        /* 鹦鹉 */
+        .parrots {
+            position: absolute;
+            top: 40px;
+            right: 50%;
+            transform: translateX(50%);
+        }
+        
+        .parrot {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background: #FF0000;
+            border-radius: 50% 50% 40% 40%;
+        }
+        
+        .parrot:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 5px;
+            width: 10px;
+            height: 15px;
+            background: #FF0000;
+            border-radius: 50%;
+        }
+        
+        .parrot:after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 15px;
+            width: 5px;
+            height: 10px;
+            background: #FFD700;
+            border-radius: 50%;
+        }
+        
+        .parrot-1 {
+            left: -20px;
+            transform: rotate(-10deg);
+        }
+        
+        .parrot-2 {
+            left: 20px;
+            transform: rotate(10deg);
+        }
+        
+        /* 内容区域 */
+        .content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .ad-left, .ad-right {
+                width: 150px;
+            }
+            
+            .ad-content {
+                width: 130px;
+                height: 500px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .ad-left, .ad-right {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-around;
+                padding: 10px;
+            }
+            
+            .ad-content {
+                width: 45%;
+                height: 150px;
+                margin-bottom: 0;
+            }
+            
+            .scene-container {
+                height: 300px;
+            }
+            
+            .sailboat {
+                width: 150px;
+                animation-duration: 20s;
+            }
+            
+            .mast {
+                height: 90px;
+            }
+            
+            .sail {
+                border-left: 45px solid transparent;
+                border-right: 45px solid transparent;
+                border-bottom: 75px solid white;
+            }
+        }
+        
+        @keyframes sail {
+            0% { left: -200px; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧广告位 -->
+        <div class="ad-left">
+            <div class="ad-content">广告位<br>招商中</div>
+            <div class="ad-content">赞助商<br>广告</div>
+        </div>
+        
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <!-- 语言切换 -->
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="zh-CN">简体中文</button>
+                <button class="lang-btn" data-lang="zh-TW">繁體中文</button>
+                <button class="lang-btn" data-lang="en">English</button>
+            </div>
+            
+            <!-- 标题 -->
+            <header>
+                <h1 class="title" data-lang-key="title">AI Racing - 维港大帆船赛</h1>
+                <p class="subtitle" data-lang-key="subtitle">见证大帆船与红头鹦鹉的奇妙邂逅</p>
+            </header>
+            
+            <!-- 场景展示 -->
+            <div class="scene-container">
+                <div class="water"></div>
+                <div class="sailboat">
+                    <div class="mast"></div>
+                    <div class="sail"></div>
+                    <div class="boat-hull"></div>
+                    <div class="parrots">
+                        <div class="parrot parrot-1"></div>
+                        <div class="parrot parrot-2"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 内容区域 -->
+            <div class="content">
+                <h2 data-lang-key="content-title">维港大帆船赛</h2>
+                <p data-lang-key="content-p1">每年一度的维港大帆船赛是香港最引人注目的海上盛事之一。来自世界各地的帆船爱好者齐聚维多利亚港，展示他们的航海技艺。</p>
+                <p data-lang-key="content-p2">在今年的比赛中，一艘装饰华丽的大帆船格外引人注目。不仅因为其卓越的航行表现，更因为船桅上栖息着两只罕见的红头鹦鹉。</p>
+                <p data-lang-key="content-p3">这两只鹦鹉似乎对航海生活非常适应，它们时而展翅高飞，时而停歇在桅杆上，为这场激烈的比赛增添了一抹奇妙的色彩。</p>
+                <p data-lang-key="content-p4">专家认为，这些鹦鹉可能是从附近的林地飞来的，被帆船鲜艳的颜色和热闹的气氛所吸引。</p>
+            </div>
+        </div>
+        
+        <!-- 右侧广告位 -->
+        <div class="ad-right">
+            <div class="ad-content">合作伙伴<br>展示</div>
+            <div class="ad-content">赛事<br>赞助商</div>
+        </div>
+    </div>
+
+    <script>
+        // 多语言内容
+        const translations = {
+            'zh-CN': {
+                'title': 'AI Racing - 维港大帆船赛',
+                'subtitle': '见证大帆船与红头鹦鹉的奇妙邂逅',
+                'content-title': '维港大帆船赛',
+                'content-p1': '每年一度的维港大帆船赛是香港最引人注目的海上盛事之一。来自世界各地的帆船爱好者齐聚维多利亚港，展示他们的航海技艺。',
+                'content-p2': '在今年的比赛中，一艘装饰华丽的大帆船格外引人注目。不仅因为其卓越的航行表现，更因为船桅上栖息着两只罕见的红头鹦鹉。',
+                'content-p3': '这两只鹦鹉似乎对航海生活非常适应，它们时而展翅高飞，时而停歇在桅杆上，为这场激烈的比赛增添了一抹奇妙的色彩。',
+                'content-p4': '专家认为，这些鹦鹉可能是从附近的林地飞来的，被帆船鲜艳的颜色和热闹的气氛所吸引。'
+            },
+            'zh-TW': {
+                'title': 'AI Racing - 維港大帆船賽',
+                'subtitle': '見證大帆船與紅頭鸚鵡的奇妙邂逅',
+                'content-title': '維港大帆船賽',
+                'content-p1': '每年一度的維港大帆船賽是香港最引人注目的海上盛事之一。來自世界各地的帆船愛好者齊聚維多利亞港，展示他們的航海技藝。',
+                'content-p2': '在今年的比賽中，一艘裝飾華麗的大帆船格外引人注目。不僅因為其卓越的航行表現，更因為船桅上棲息著兩隻罕見的紅頭鸚鵡。',
+                'content-p3': '這兩隻鸚鵡似乎對航海生活非常適應，它們時而展翅高飛，時而停歇在桅杆上，為這場激烈的比賽增添了一抹奇妙的色彩。',
+                'content-p4': '專家認為，這些鸚鵡可能是從附近的林地飛來的，被帆船鮮艷的顏色和熱鬧的氣氛所吸引。'
+            },
+            'en': {
+                'title': 'AI Racing - Victoria Harbour Sailing Race',
+                'subtitle': 'Witness the Amazing Encounter of Sailing Boats and Red-headed Parrots',
+                'content-title': 'Victoria Harbour Sailing Race',
+                'content-p1': 'The annual Victoria Harbour Sailing Race is one of Hong Kong\'s most spectacular maritime events. Sailing enthusiasts from around the world gather in Victoria Harbour to showcase their nautical skills.',
+                'content-p2': 'In this year\'s competition, one ornately decorated sailing boat stood out. Not only for its outstanding sailing performance but also because two rare red-headed parrots were perched on its mast.',
+                'content-p3': 'These parrots seemed quite adapted to the sailing life, sometimes soaring high and other times resting on the mast, adding a touch of wonder to the intense competition.',
+                'content-p4': 'Experts believe these parrots may have flown from nearby woodlands, attracted by the vibrant colors of the sailboats and the lively atmosphere.'
+            }
+        };
+        
+        // 语言切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const elementsToTranslate = document.querySelectorAll('[data-lang-key]');
+            
+            // 设置默认语言
+            let currentLang = 'zh-CN';
+            
+            // 语言切换事件
+            langButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    
+                    // 更新按钮状态
+                    langButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新语言
+                    currentLang = lang;
+                    translatePage(lang);
+                });
+            });
+            
+            // 翻译页面内容
+            function translatePage(lang) {
+                elementsToTranslate.forEach(element => {
+                    const key = element.getAttribute('data-lang-key');
+                    if (translations[lang] && translations[lang][key]) {
+                        element.textContent = translations[lang][key];
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
